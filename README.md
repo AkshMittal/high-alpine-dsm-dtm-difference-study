@@ -43,13 +43,16 @@ The extreme differences are acquisition artifacts for sure, and they split into 
 ## Figures
 
 ![TRI of high vs low difference cells](figures/TRI_highlow.png)
+
 High-difference cells (blue) sit at much higher ruggedness than calm cells (orange).
 
 ![Slope of extreme vs calm cells outside glaciers](figures/slope_outside.png)
+
 Extreme-difference cells outside glaciers pile up against 90° (cliffs); calm terrain is a
 normal bell around 40°.
 
 ![Aspect dipole](figures/aspect_dipole.png)
+
 Positive and negative extremes sit on opposite-facing slopes — the signature of a
 directional horizontal offset between the two acquisitions.
 
