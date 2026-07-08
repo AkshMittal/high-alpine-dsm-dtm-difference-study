@@ -42,7 +42,7 @@ The extreme differences are acquisition artifacts for sure, and they split into 
 
 ## Figures
 
-![TRI of high vs low difference cells](figures/tri_highlow.png)
+![TRI of high vs low difference cells](figures/TRI_highlow.png)
 High-difference cells (blue) sit at much higher ruggedness than calm cells (orange).
 
 ![Slope of extreme vs calm cells outside glaciers](figures/slope_outside.png)
