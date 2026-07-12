@@ -173,5 +173,6 @@ The error was not a bug. The code did what I told it to. The error was reading a
 out of a *marginal distribution*, when the mechanism made a claim about pairing that the
 marginal could not test. The conditional test took ten minutes to write and killed the
 conclusion immediately. I should have run it before publishing, not after. Also towards the end 
-I was not able to see any pattern whatsover to the cause of it so I left it, partly because I 
-did not have enough deterministic facts about the data. 
+I was not able to identify anything else specific that could explain the values and their patterns, 
+every test was exclusionary. Several photogrammetic phenomenons could explain this clubbed together, 
+but I could not distinguish between them. 
