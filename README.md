@@ -1,3 +1,11 @@
+> **Note: the analysis code in this repo is outdated.**
+> It derives slope and aspect from the DTM, which is both the layer under investigation and
+> the horizontally less accurate of the two products. The conclusion it reaches (horizontal
+> misregistration, evidenced by an aspect dipole) does not hold. See
+> [Correction and post-mortem](#correction-and-post-mortem) at the bottom for what was wrong,
+> what was tested, and what survives. The code is left as-is rather than rewritten, so the
+> original reasoning stays inspectable.
+
 # DSM − DTM artifact analysis over alpine glaciers
 
 This started as a data check for a viewshed project and became a study of what the
@@ -92,3 +100,78 @@ Tiles are not included in the repo (too large); download from the sources above.
 Single site (Weisshorn). The DTM is likely stereo-derived above 2000m but this is somewhat
 ambiguous, so I describe the outside-glacier mechanism as horizontal misregistration between
 two acquisitions rather than pinning it to a specific method difference.
+
+## Correction and post-mortem
+
+The original conclusion in this repo was wrong. This section explains how, and what
+survives.
+
+### What I claimed
+
+That the extreme DSM − DTM values outside glaciers were caused by horizontal
+misregistration between the two acquisitions, evidenced by an "aspect dipole": positive
+and negative extremes sitting on opposite-facing slopes, which is how a horizontal shift
+would behave.
+
+### Why it was wrong
+
+**The dipole was never demonstrated.** The evidence was two separated peaks in a marginal
+histogram of aspect for positive and negative extremes. But a dipole is a claim about
+*pairing*: that a given positive extreme sits opposite a given negative one on the same
+feature. A marginal distribution cannot show that. Two populations can prefer different
+aspects for unrelated reasons with no cell-to-cell relationship at all.
+
+Tested directly, by conditioning on proximity first and then measuring aspect separation
+between neighbouring opposite-sign extremes:
+
+- median aspect separation between paired extremes: **12.4°** (i.e. same-facing)
+- fraction of pairs more than 120° apart: **1.1%**
+
+A Nuth-Kääb style coregistration fit over all off-glacier terrain independently returned
+**R² = 0.003**. There is no global horizontal offset between these two products.
+
+**A methodological error contributed.** Slope and aspect were derived from the DTM. The DTM
+is the layer under investigation, and it is the horizontally inferior one (swissALTI3D
+above 2000 m is stereocorrelation, ±1–3 m; swissSURFACE3D is LiDAR, ~±0.2 m horizontal).
+Using it as the geometric reference frame is circular. Slope and aspect should be derived
+from the LiDAR DSM. This is corrected in the analysis, though it is not what produced the
+false conclusion.
+
+### What was tested and ruled out
+
+Four candidate mechanisms, all rejected against data:
+
+| Hypothesis | Prediction | Result |
+|---|---|---|
+| Global horizontal misregistration | pos/neg extremes on opposing aspects; cosine fit recovers shift | 12.4° median separation, 1.1% opposed; fit R² = 0.003 |
+| TIN interpolation across data voids | DTM locally *smoother* than DSM inside extreme patches | TRI ratio DTM/DSM = **1.568** on extremes (rougher), 0.978 on calm |
+| Random stereo matching noise | signs scatter between adjacent cells | sign-flip rate **0.0018** on extremes vs **0.266** on calm; extremes are sign-coherent |
+| Production seam at the glacier polygon edge | effect pinned to the polygon, sharpens under erosion | insensitive to 5/10/25 m erosion; effect is ~100 m wide, far too broad for a seam |
+
+### What survives
+
+Description, not mechanism:
+
+- Extremes form large, internally **uniform** patches (median CV = std/|median| = **0.148**),
+  bodily displaced by tens of metres rather than smoothly graded.
+- They sit on near-vertical terrain (median patch slope **68.7°**).
+- They are concentrated within roughly 100 m of the glacier margin, ~30× enriched even with
+  slope held constant (55–75° band).
+- Inside these patches the DTM's derived aspect disagrees with the DSM's by a median of
+  **28.8°**, while on calm terrain the two agree to within **1.3°**. The DTM is locally wrong
+  where the extremes are, and correct everywhere else.
+
+This is consistent with stereo-correlation failure in the 2024 photogrammetric DTM, on the
+steep, poorly-illuminated, low-texture terrain that swisstopo's own product documentation
+flags as problematic (swissALTI3D product info, §3.2.5 and §4). I am not claiming it as
+demonstrated. Distinguishing between specific photogrammetric failure modes would require
+access to the source stereo pairs, which I don't have.
+
+### The lesson
+
+The error was not a bug. The code did what I told it to. The error was reading a *mechanism*
+out of a *marginal distribution*, when the mechanism made a claim about pairing that the
+marginal could not test. The conditional test took ten minutes to write and killed the
+conclusion immediately. I should have run it before publishing, not after. Also towards the end 
+I was not able to see any pattern whatsover to the cause of it so I left it, partly because I 
+did not have enough deterministic facts about the data. 
